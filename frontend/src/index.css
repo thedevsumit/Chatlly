@@ -1,0 +1,213 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+#main-parent-login {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+#left-main-div {
+  width: 44vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 4rem;
+}
+#right-main-div {
+  width: 56vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-direction: column;
+  height: 100vh;
+}
+#helping-div {
+  width: 500px;
+  height: 250px;
+  border-bottom: 2px solid white;
+  border-right: 2px solid white;
+  position: absolute;
+  top: 70%;
+  left: 27%;
+  transform: rotate(-45deg);
+}
+#helping-div::after {
+  content: "";
+  width: 2px;
+  height: 700px;
+  border-right: 2px solid white;
+  position: absolute;
+  transform: rotate(45deg) translateY(-949px) translateX(105px);
+}
+
+.main-animation-div {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+.main-animation-div p {
+  font-family: monospace;
+  margin-inline: auto;
+  overflow: hidden;
+  margin-left: 20px;
+  white-space: nowrap;
+  border-right: 1px solid;
+  font-size: 3rem;
+  animation: typing 1s steps(22) forwards, blink 1s step-end infinite;
+}
+@keyframes typing {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+#helping-animation-div {
+  font-family: monospace;
+  margin-inline: auto;
+  display: flex;
+  white-space: nowrap;
+
+  font-size: 3rem;
+}
+.text-animation {
+  width: 400px;
+  height: 600px;
+  margin: 0 auto;
+  background: red;
+}
+.form-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-direction: column;
+}
+.form-login input {
+  width: 400px;
+  padding-left: 14px;
+  height: 60px;
+  border: 1px solid white;
+}
+.form-login button {
+  width: 200px;
+  height: 50px;
+  background-color: white;
+  color: black;
+}
+.parent-profile {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background-color: black;
+  align-items: center;
+  justify-content: center;
+}
+.parent-p {
+  width: 500px;
+  height: 600px;
+}
+.heading {
+  margin: 0 auto;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+.camera {
+  filter: invert();
+}
+
+.image-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.logo-user {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 2px solid black;
+  object-fit: cover;
+  transition: filter 0.3s ease;
+}
+
+.camera {
+  filter: invert();
+  z-index: 2;
+}
+
+.overlapdiv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(0px);
+  opacity: 0;
+  z-index: 3;
+  transition: all 0.3s ease;
+}
+
+.image-container:hover .overlapdiv {
+  opacity: 1;
+}
+
+.image-container:hover .background-img {
+  filter: blur(4px);
+}
+
+.userinfo {
+  margin-top: 50px;
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.infouser {
+  width: 200px;
+  border: 2px solid white;
+}
+.parent-p::before {
+  content: "";
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+  border-bottom-right-radius: 90%;
+  border-top-right-radius: 0%;
+
+  transform: rotate(25deg) translateX(-50px) translateY(160px);
+  border-right: 2px solid white;
+}
+
+.parent-p::after {
+  content: "";
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+  border-bottom-left-radius: 90%;
+  border-top-left-radius: 0%;
+
+  transform: rotate(-25deg) translateX(309px) translateY(60px);
+  border-left: 2px solid white;
+}
