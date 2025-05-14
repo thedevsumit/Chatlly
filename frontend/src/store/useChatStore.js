@@ -22,7 +22,7 @@ export const useChatStore = create((set, get) => ({
         })
     },
     unsubscribeToMessages: () => {
-        const socket = useAuthStore.getState().socket;
+        const socket = userAuthStore.getState().socket;
         socket.off("newMessage");
     },
     getUsers: async () => {
