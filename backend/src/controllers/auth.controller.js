@@ -91,17 +91,23 @@ const login = async (req, res) => {
 
 }
 const logout = (req, res) => {
-    try {
-        res.cookie("jwt", "", { maxAge: 0 })
-        res.status(200).json({
-            msg: "Successfully logged out"
-        })
-    } catch (error) {
-        res.status(500).json({
-            msg: "Interal server error"
-        })
-    }
-}
+  try {
+    res.cookie("jwt", "", {
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: "None",
+      secure: true
+    });
+    res.status(200).json({
+      msg: "Successfully logged out"
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Internal server error"
+    });
+  }
+};
+
 const profile = async (req, res) => {
     const { profilePic } = req.body;
     const userId = req.user._id;
