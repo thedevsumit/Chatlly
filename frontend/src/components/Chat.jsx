@@ -10,36 +10,39 @@ const Chat = () => {
   const {
     messages,
     getMessages,
-    isMessagesLoading,
+    isMessageLoading,
     selectedUser,
     subscribeToMessage,
     unsubscribeToMessages,
   } = useChatStore();
+
   const { authUser } = userAuthStore();
   const messageEndRef = useRef(null);
 
-  useEffect(() => {
-    getMessages(selectedUser._id);
-    subscribeToMessage();
-    return () => unsubscribeToMessages();
-  }, [
-    selectedUser._id,
-    getMessages,
-    subscribeToMessage,
-    unsubscribeToMessages,
-  ]);
 
   useEffect(() => {
-    if (messageEndRef.current && messages) {
+    if (!selectedUser?._id) return;
+
+    getMessages(selectedUser._id);
+    subscribeToMessage();
+
+    return () => {
+      unsubscribeToMessages();
+    };
+  }, [selectedUser?._id]);
+
+
+  useEffect(() => {
+    if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  if (isMessagesLoading) {
+  if (isMessageLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
-        <MessageSkeleton />
+        <ChatSkeleton />
         <MessageInput />
       </div>
     );
@@ -56,27 +59,28 @@ const Chat = () => {
             className={`chat ${
               message.senderId === authUser._id ? "chat-end" : "chat-start"
             }`}
-            ref={messageEndRef}
           >
-            <div className=" chat-image avatar">
+            <div className="chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
                     message.senderId === authUser._id
                       ? authUser.profilePic ||
                         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
-                      : selectedUser.profilePic ||
+                      : selectedUser?.profilePic ||
                         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
                   }
                   alt="profile pic"
                 />
               </div>
             </div>
+
             <div className="chat-header mb-1">
               <time className="text-xs opacity-50 ml-1">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
+
             <div className="chat-bubble flex flex-col">
               {message.image && (
                 <img
@@ -89,10 +93,12 @@ const Chat = () => {
             </div>
           </div>
         ))}
+        <div ref={messageEndRef} />
       </div>
 
       <MessageInput />
     </div>
   );
 };
+
 export default Chat;
