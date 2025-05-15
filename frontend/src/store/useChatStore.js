@@ -53,34 +53,34 @@ export const useChatStore = create((set, get) => ({
     setSelectedUser: (selectedUser) => {
         set({ selectedUser })
     },
-    sendMessage: async (messageData) => {
+   sendMessage: async (messageData) => {
   const { selectedUser, messages } = get();
-
-  // Generate temporary ID using timestamp
-  const tempId = `temp-${Date.now()}`;
-
-  // Get current user (sender) info
   const currentUser = userAuthStore.getState().user;
 
-  // Create optimistic message
+  if (!selectedUser || !currentUser || !currentUser._id) {
+    toast.error("Cannot send message — user not authenticated or no recipient selected.");
+    return;
+  }
+
+  const tempId = `temp-${Date.now()}`;
+
   const tempMessage = {
     ...messageData,
     id: tempId,
     senderId: currentUser._id,
     senderName: currentUser.username,
-    senderProfilePic: currentUser.profilePic || "", // fallback if needed
+    senderProfilePic: currentUser.profilePic || "",
     timestamp: new Date().toISOString(),
     formattedTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     status: "pending"
   };
 
-  // Add message optimistically
+  // Optimistic update
   set({ messages: [...messages, tempMessage] });
 
   try {
     const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData);
 
-    // Replace temp message with server message
     set({
       messages: get().messages.map(msg =>
         msg.id === tempId
@@ -93,7 +93,6 @@ export const useChatStore = create((set, get) => ({
       )
     });
   } catch (error) {
-    // Update temp message to show failure
     set({
       messages: get().messages.map(msg =>
         msg.id === tempId ? { ...msg, status: "failed" } : msg
@@ -101,6 +100,7 @@ export const useChatStore = create((set, get) => ({
     });
     toast.error(error.response?.data?.message || "Failed to send message");
   }
-},
+}
+
 
 }))
