@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client"
-const BASE_URL = import.meta.env.MODE === "development" ? "https://chatlly.onrender.com" : "/";
+const BASE_URL = "https://chatlly.onrender.com";
 export const userAuthStore = create((set, get) => ({
     authUser: null,
     isSigningUp: false,

@@ -12,22 +12,22 @@ dotenv.config();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: "https://gochatlly.onrender.com",
-  credentials: true,
+    origin: "https://gochatlly.onrender.com",
+    credentials: true,
 }));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-  app.get("*", (req, res) => {
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
+});
+
 
 server.listen(process.env.PORT, () => {
-  console.log("Running on port number:", process.env.PORT);
-  connectDB();
+    console.log("Running on port number:", process.env.PORT);
+    connectDB();
 });
