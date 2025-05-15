@@ -53,12 +53,15 @@ export const useChatStore = create((set, get) => ({
     setSelectedUser: (selectedUser) => {
         set({ selectedUser })
     },
-   sendMessage: async (messageData) => {
+ sendMessage: async (messageData) => {
   const { selectedUser, messages } = get();
   const currentUser = userAuthStore.getState().user;
 
+  console.log("Selected User:", selectedUser);
+  console.log("Current User:", currentUser);
+
   if (!selectedUser || !currentUser || !currentUser._id) {
-    toast.error("Cannot send message — user not authenticated or no recipient selected.");
+    toast.error("Missing user info or selected user");
     return;
   }
 
@@ -75,7 +78,6 @@ export const useChatStore = create((set, get) => ({
     status: "pending"
   };
 
-  // Optimistic update
   set({ messages: [...messages, tempMessage] });
 
   try {
