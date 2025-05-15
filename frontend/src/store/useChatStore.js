@@ -53,54 +53,54 @@ export const useChatStore = create((set, get) => ({
     setSelectedUser: (selectedUser) => {
         set({ selectedUser })
     },
-    sendMessage: async (messageData) => {
-        const { selectedUser, messages } = get();
-        const currentUser = userAuthStore.getState().authUser;
+   sendMessage: async (messageData) => {
+  const { selectedUser, messages } = get();
+  const currentUser = userAuthStore.getState().authUser;
 
-       
+  if (!selectedUser || !currentUser || !currentUser._id) {
+    toast.error("Missing user info or selected user");
+    return;
+  }
 
-        if (!selectedUser || !currentUser || !currentUser._id) {
-            toast.error("Missing user info or selected user");
-            return;
-        }
+  const tempId = `temp-${Date.now()}`;
 
-        const tempId = `temp-${Date.now()}`;
+  const tempMessage = {
+    ...messageData,
+    _id: tempId, 
+    senderId: currentUser._id,
+    senderName: currentUser.username,
+    senderProfilePic: currentUser.profilePic || "",
+    createdAt: new Date().toISOString(),
+    status: "pending",
+  };
 
-        const tempMessage = {
-            ...messageData,
-            id: tempId,
-            senderId: currentUser._id,
-            senderName: currentUser.username,
-            senderProfilePic: currentUser.profilePic || "",
-            timestamp: new Date().toISOString(),
-            formattedTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            status: "pending"
-        };
+ 
+  set({ messages: [...messages, tempMessage] });
 
-        set({ messages: [...messages, tempMessage] });
+  try {
+    const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData);
 
-        try {
-            const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData);
+    set({
+      messages: get().messages.map((msg) =>
+        msg._id === tempId
+          ? {
+              ...res.data,
+              createdAt: new Date(res.data.createdAt || res.data.timestamp).toISOString(),
+              status: "sent",
+            }
+          : msg
+      ),
+    });
+  } catch (error) {
 
-            set({
-                messages: get().messages.map(msg =>
-                    msg.id === tempId
-                        ? {
-                            ...res.data,
-                            formattedTime: new Date(res.data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                            status: "sent"
-                        }
-                        : msg
-                )
-            });
-        } catch (error) {
-            set({
-                messages: get().messages.map(msg =>
-                    msg.id === tempId ? { ...msg, status: "failed" } : msg
-                )
-            });
-            toast.error(error.response?.data?.message || "Failed to send message");
-        }
-    }
+    set({
+      messages: get().messages.map((msg) =>
+        msg._id === tempId ? { ...msg, status: "failed" } : msg
+      ),
+    });
+    toast.error(error.response?.data?.message || "Failed to send message");
+  }
+}
+
 
 }))
