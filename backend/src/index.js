@@ -21,11 +21,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
 
 
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-});
-
 
 server.listen(process.env.PORT, () => {
     console.log("Running on port number:", process.env.PORT);
