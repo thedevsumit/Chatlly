@@ -53,18 +53,12 @@ const sendMessage = async (req, res) => {
         const newMessage = new Message({
             senderId, receiverId, text, image: imageUrl
         })
-         const receiverSocketId = getReceiverSocketId(receiverId)
-       
+        await newMessage.save()
+        const receiverSocketId = getReceiverSocketId(receiverId)
         if(receiverSocketId){
-            const saving = newMessage.save();
-const emitting = io.to(receiverSocketId).emit("newMessage", newMessage);
-
-await Promise.all([saving, emitting]);
-             res.status(201).json(newMessage)
+            io.to(receiverSocketId).emit("newMessage",newMessage)
         }
-       
-       
-       
+        res.status(201).json(newMessage)
     } catch (error) {
         res.status(500).json({
             msg: "Internal server error"
