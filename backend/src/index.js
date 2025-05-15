@@ -12,7 +12,7 @@ dotenv.config();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: "https://gochatlly.onrender.com/login",
+  origin: "https://gochatlly.onrender.com",
   credentials: true,
 }));
 app.use(express.json());
