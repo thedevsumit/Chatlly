@@ -3,6 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client"
 const BASE_URL = "https://chatlly.onrender.com";
+// const BASE_URL = "http://localhost:5000"
 export const userAuthStore = create((set, get) => ({
     authUser: null,
     isSigningUp: false,

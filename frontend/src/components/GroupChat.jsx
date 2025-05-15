@@ -1,59 +1,71 @@
 import React, { useEffect, useRef } from "react";
-import { useChatStore } from "../store/useChatStore";
-import MessageInput from "./MessageInput";
-import ChatHeader from "./ChatHeader";
-import ChatSkeleton from "./ChatSkeleton";
+import { useGroupChatStore } from "../store/useGroupStore";
 import { userAuthStore } from "../store/userAuthStore";
+import GroupChatHeader from "./GroupChatHeader";
+import ChatSkeleton from "./ChatSkeleton";
+import GroupMessageInput from "./GroupMessageInput";
 import { formatMessageTime } from "../lib/utils";
+import { useChatStore } from "../store/useChatStore";
 
-const Chat = () => {
+const GroupChat = () => {
   const {
-    messages,
-    getMessages,
-    isMessageLoading,
-    selectedUser,
-    subscribeToMessage,
-    unsubscribeToMessages,
-  } = useChatStore();
+    groupMessages,
+    getGroupMessages,
+    isGroupMessageLoading,
+    selectedGroup,
+    subscribeToGroupMessages,
+    unsubscribeFromGroupMessages,
+  } = useGroupChatStore();
+  const {users} = useChatStore();
+  let members = users;
+  useEffect(() => {
+    if (!selectedGroup?._id) return;
+
+    getGroupMessages(selectedGroup._id);
+    subscribeToGroupMessages();
+
+    return () => {
+      unsubscribeFromGroupMessages();
+    };
+  }, [selectedGroup?._id]);
 
   const { authUser } = userAuthStore();
   const messageEndRef = useRef(null);
 
-
   useEffect(() => {
-    if (!selectedUser?._id) return;
-
-    getMessages(selectedUser._id);
-    subscribeToMessage();
-
-    return () => {
-      unsubscribeToMessages();
-    };
-  }, [selectedUser?._id]);
-
+    if (!selectedGroup?._id) return;
+    getGroupMessages(selectedGroup._id);
+  }, [selectedGroup?._id]);
 
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [groupMessages]);
 
-  if (isMessageLoading) {
+  if (isGroupMessageLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
-        <ChatHeader />
+        <GroupChatHeader />
         <ChatSkeleton />
-        <MessageInput />
+        <GroupMessageInput />
       </div>
     );
   }
 
+  function getSenderName(senderId, members) {
+    if (!senderId || !members) return "User";
+
+    const sender = members.find((member) => member._id === senderId);
+    return sender ? sender.fullName || sender.username || "You" : "You";
+  }
+  console.log(members)
   return (
     <div className="flex-1 flex flex-col overflow-auto">
-      <ChatHeader />
+      <GroupChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {groupMessages.map((message) => (
           <div
             key={message._id}
             className={`chat ${
@@ -67,7 +79,7 @@ const Chat = () => {
                     message.senderId === authUser._id
                       ? authUser.profilePic ||
                         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
-                      : selectedUser?.profilePic ||
+                      : message.senderProfilePic ||
                         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
                   }
                   alt="profile pic"
@@ -76,7 +88,10 @@ const Chat = () => {
             </div>
 
             <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
+              <span className="font-semibold text-sm">
+                {getSenderName(message.senderId, members)}
+              </span>
+              <time className="text-xs opacity-50 ml-2">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
@@ -96,9 +111,9 @@ const Chat = () => {
         <div ref={messageEndRef} />
       </div>
 
-      <MessageInput />
+      <GroupMessageInput />
     </div>
   );
 };
 
-export default Chat;
+export default GroupChat;

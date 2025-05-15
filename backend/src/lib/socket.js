@@ -8,6 +8,7 @@ const server = http.createServer(app)
 const io = new Server(server, {
     cors: {
         origin: ["https://gochatlly.onrender.com"],
+        // origin: ["http://localhost:5173"],
     },
 
 })
@@ -17,13 +18,28 @@ const getReceiverSocketId = (userId) => {
 const userSocketMap = {}
 io.on("connection", (socket) => {
     console.log("A user connected", socket.id)
-    const userId = socket.handshake.query.userId
-    if (userId) userSocketMap[userId] = socket.id
-    io.emit("getOnlineUsers", Object.keys(userSocketMap))
+
+    const userId = socket.handshake.query.userId;
+    if (userId) {
+        userSocketMap[userId] = socket.id;
+        io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    }
+
+
+    socket.on("joinGroup", (groupId) => {
+        socket.join(groupId);
+        console.log(`User ${userId} joined group ${groupId}`);
+    });
+
+    socket.on("leaveGroup", (groupId) => {
+        socket.leave(groupId);
+        console.log(`User ${userId} left group ${groupId}`);
+    });
+
     socket.on("disconnect", () => {
-        console.log("A user disconnected", socket.id)
+        console.log("User disconnected:", socket.id);
         delete userSocketMap[userId];
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
-    })
-})
+    });
+});
 module.exports = { io, app, server, getReceiverSocketId }
