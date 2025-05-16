@@ -32,10 +32,7 @@ const GroupChat = () => {
   const { authUser } = userAuthStore();
   const messageEndRef = useRef(null);
 
-  useEffect(() => {
-    if (!selectedGroup?._id) return;
-    getGroupMessages(selectedGroup._id);
-  }, [selectedGroup?._id]);
+ 
 
   useEffect(() => {
     if (messageEndRef.current) {

@@ -67,36 +67,86 @@ const addMemberGroup = async (req, res) => {
         })
     }
 }
+const deleteGroup = async (req, res) => {
+    try {
+        const { groupId } = req.body;
+        const userId = req.user._id;
+
+
+        const group = await Group.findOne({ _id: groupId });
+
+        if (!group) {
+            return res.status(404).json({ msg: "Group not found" });
+        }
+
+        if (group.admin.toString() !== userId.toString()) {
+            return res.status(403).json({ msg: "Access denied: must be admin to delete" });
+        }
+        const deletedGroup = await Group.findByIdAndDelete(groupId);
+
+        res.status(200).json({
+            msg: "Group deleted successfully",
+            deletedGroup,
+        });
+    } catch (error) {
+        res.status(500).json({
+            msg: "Server error",
+            error: error.message,
+        });
+    }
+};
+
 const removeMemberGroup = async (req, res) => {
     try {
         const { groupId, memberId } = req.body;
         const userId = req.user._id;
 
+        console.log("Raw memberId:", memberId);
+        console.log("Admin ID:", userId);
 
         const group = await Group.findOne({ _id: groupId, admin: userId });
         if (!group) {
             return res.status(403).json({ msg: "Access denied: must be admin" });
         }
 
-
         if (memberId === userId.toString()) {
             return res.status(400).json({ msg: "Admin cannot remove themselves" });
         }
 
-        const memberObjId = new mongoose.Types.ObjectId(memberId);
+        let memberObjId;
+        try {
+            memberObjId = new mongoose.Types.ObjectId(memberId);
+        } catch (e) {
+            return res.status(400).json({ msg: "Invalid memberId format" });
+        }
+
         const updateResult = await Group.updateOne(
             { _id: groupId },
             { $pull: { members: memberObjId } }
         );
 
+        const updatedGroup = await Group.findById(groupId);
+        const stillPresent = updatedGroup.members.some(
+            (id) => id.toString() === memberId
+        );
 
-        res.status(200).json(updateResult);
+        if (stillPresent) {
+            return res.status(500).json({
+                msg: "Member removal failed. Likely ID mismatch or data issue.",
+                members: updatedGroup.members
+            });
+        }
+
+        res.status(200).json({
+            msg: "Member removed successfully",
+            updateResult,
+            members: updatedGroup.members
+        });
     } catch (error) {
-        res.status(500).json({
-            msg: error.message
-        })
+        res.status(500).json({ msg: error.message });
     }
-}
+};
+
 const getAllMemmbersOfGroup = async (req, res) => {
     try {
         const { groupId } = req.query;
@@ -193,4 +243,5 @@ const findingUser = async (req, res) => {
 
     res.json({ _id: user._id });
 }
-module.exports = { createGroupUser, getGroupsByUser, addMemberGroup, removeMemberGroup, getAllMemmbersOfGroup, sendGroupMessage, getMessagesGroup, findingUser }
+
+module.exports = { createGroupUser, getGroupsByUser, addMemberGroup, removeMemberGroup, getAllMemmbersOfGroup, sendGroupMessage, getMessagesGroup, findingUser, deleteGroup }
